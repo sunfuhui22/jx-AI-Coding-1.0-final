@@ -204,3 +204,10 @@ UI 严格遵循 Stitch 设计系统（Material Design 3 音调分层法）。详
 - 路径别名：`@/*` 映射项目根目录
 - shadcn/ui：`radix-nova` 风格，基础色 neutral，CSS 变量启用
 - 批量修改文件后：先 `format` → `lint` → `tsc --noEmit`，再提交
+
+## Active Technologies
+- TypeScript 5.x (strict mode) + Next.js 16.2.3 (App Router), React 19, Tailwind CSS 4, shadcn/ui 4 (radix-nova), lucide-react, Biome 2.2 (007-project-init)
+- N/A（阶段 2 引入 Supabase） (007-project-init)
+
+## Recent Changes
+- 007-project-init: Added TypeScript 5.x (strict mode) + Next.js 16.2.3 (App Router), React 19, Tailwind CSS 4, shadcn/ui 4 (radix-nova), lucide-react, Biome 2.2
