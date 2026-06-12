@@ -1,2 +1,10 @@
+#!/bin/sh
+set -e
+
+echo "==> Running tsc type check..."
 npx tsc --noEmit
+
+echo "==> Running Biome check..."
 npx biome check
+
+echo "==> All checks passed!"

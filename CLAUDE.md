@@ -4,10 +4,6 @@
 
 **重要：始终使用中文进行对话交互。**
 
-## 项目概述
-
-**建筑施工质检情报员** — 面向建筑施工场景的 AI 驱动工单管理系统。单一 Next.js 代码库同时承载移动端（质检员/施工方）和 PC 端（管理员）前端及后端 API。
-
 ## 常用命令
 
 ```bash
@@ -18,220 +14,193 @@ npm run format     # Biome 格式化并写入
 npx tsc --noEmit   # 仅类型检查，不输出
 ```
 
-## 项目结构
+### Git 提交卡控（Husky pre-commit）
 
-```
-app/
-├── api/
-│   └── tickets/
-│       ├── route.ts              # 工单列表/创建 API（GET/POST）
-│       └── [id]/
-│           ├── route.ts          # 工单详情/编辑 API（GET/PATCH）
-│           └── actions/
-│               ├── resolve/route.ts
-│               ├── reject/route.ts
-│               └── reopen/route.ts
-├── auth/
-│   └── select-identity/route.ts  # 登录后身份选择 API
-├── layout.tsx                    # 根布局（Geist 字体、zh-CN、metadata）
-├── page.tsx                      # 首页（双端入口按钮）
-├── globals.css                   # 全局样式（Stitch + shadcn/ui CSS 变量）
-├── login/
-│   ├── actions.ts                # 登录与身份选择 Server Actions
-│   └── page.tsx                  # 登录页（工号/密码 + redirect 校验）
-├── api/
-│   └── agent/route.ts            # Agent SSE 流式端点（createAgent + PostgresSaver）
-├── mobile/
-│   ├── layout.tsx                # 移动端共享布局（顶栏 + 侧边抽屉 + 身份入口）
-│   ├── assistant/page.tsx        # 智能助手（RSC 预取历史 + AgentChat）
-│   └── tickets/
-│       ├── page.tsx              # 工单列表（真实数据加载 + 列表渲染）
-│       └── [id]/page.tsx         # 工单详情（真实数据 + 编辑/状态操作）
-└── dashboard/
-    ├── layout.tsx                # PC 端共享布局（顶栏 + 左侧导航）
-    ├── overview/page.tsx         # 数据大盘（阶段 6 待实现）
-    ├── tickets/page.tsx          # 工单中心（阶段 6 待实现）
-    └── knowledge/page.tsx        # 知识运营（阶段 6 待实现）
+每次 `git commit` 自动执行 `.husky/pre-commit`，`set -e` 模式，任一失败即阻止提交：
 
-components/
-├── ui/                           # shadcn/ui 组件（button, input, label, sheet, badge, select, tabs, …）
-├── ai-elements/                  # AI 对话元素（conversation/message/prompt-input）
-├── agent/                        # Agent 聊天 UI
-│   ├── agent-chat.tsx            # 主聊天界面（消息流 + tool_call 路由 + HITL 气泡文案）
-│   ├── agent-markdown-anchor.tsx # Streamdown 自定义 `<a>`：工单路径走 next/link 同页跳转，样式对齐 text-primary underline
-│   ├── use-agent-chat.ts         # useStream 封装
-│   ├── tool-call-card.tsx        # 工具调用展示卡
-│   └── create-ticket-card.tsx    # HITL 建单表单（流式结束后可提交 → POST /api/tickets）
-├── ticket-detail.tsx             # 工单详情组件（展示/编辑双模式）
-├── ticket-actions.tsx            # 工单状态机动作按钮（解决/拒绝/重开）
-├── project-chip.tsx              # 项目展示小组件（项目名 + 客户名）
-├── identity-dialog.tsx           # 身份选择弹框
-├── user-avatar-chip.tsx          # 用户展示小组件（部门 + 姓名）
-├── mobile-top-bar.tsx            # 移动端顶栏（汉堡菜单 + 标题）
-├── mobile-side-drawer.tsx        # 移动端侧边目录（Sheet 从左侧滑入）
-├── dashboard-top-bar.tsx         # PC 端顶栏（标题 + 用户区域占位）
-└── dashboard-side-nav.tsx        # PC 端侧边导航（3 个菜单项 + 高亮）
+1. **`npx tsc --noEmit`** — TypeScript 类型检查
+2. **`npx biome check`** — Lint + Format 检查（Biome 2.2）
 
-lib/
-├── auth.ts                       # 身份 cookie 读写、身份列表查询（生产环境 cookie 为 secure）
-├── auth-actions.ts               # 身份切换 Server Action
-├── tickets.ts                    # 工单数据访问层；写入/状态更新使用 service role（避免 RLS 与用户 JWT 不一致）
-├── supabase/                     # client / server / proxy / **service-role**（仅服务端 mutations）
-├── utils.ts                      # cn() 工具函数
-├── types.ts                      # 全局类型（角色、工单、项目等）
-└── agent/
-    ├── index.ts                  # createAgent 单例 + 历史修剪工具
-    ├── model.ts                  # OpenRouter ChatOpenAI 配置
-    ├── checkpoints.ts            # PostgresSaver 单例 + setup
-    ├── prompts.ts                # 身份驱动 system prompt（含 queryTicket / Coze / HITL 链接约定）
-    ├── tools.ts                  # queryTicket（MCP）、consult_construction_knowledge（Coze）、create_ticket（HITL）
-    ├── coze-client.ts            # Coze 流式知识，仅聚合最终 answer
-    ├── mcp-client.ts             # MCP MultiServer 客户端（工单查询）
-    └── create-ticket-draft-args.ts # 解析/规范化 create_ticket 工具参数（流式补全预填）
-```
+**禁止使用 `--no-verify` 跳过检查。**
 
-## 架构
+## 项目概述
 
-**Next.js 16 (App Router)** 单一代码库，前后端统一。
+**建筑施工质检情报员** — AI 驱动的施工质检工单管理系统。单一 Next.js 16 App Router 代码库同时承载：
 
-### 路由结构
+| 端 | 用户角色 | 路由前缀 |
+|---|---|---|
+| 移动端 | 质检员（报事建单）、施工方（处理工单） | `/mobile/` |
+| PC 端 | 管理员（全局监控、知识运营） | `/dashboard/` |
+| 公用 | 所有角色 | `/login`、`/` |
 
-```
-/                          → 首页（移动端入口 + PC 后台入口）
-/login                     → 统一登录页（支持 ?redirect= 回跳）
-/mobile/assistant          → Agent 对话（知识检索 + 创建工单）
-/mobile/tickets            → 工单列表（Tab 筛选）
-/mobile/tickets/:id        → 工单详情
-/dashboard/overview        → 数据大盘
-/dashboard/tickets         → 工单中心（表格 + 右侧详情抽屉）
-/dashboard/knowledge       → 知识运营（候选池 + QA 对列表）
-```
-
-### 技术栈
+## 技术栈
 
 | 层次 | 技术选型 |
 |------|----------|
-| 框架 | Next.js 16 App Router (RSC + Server Actions) |
+| 框架 | Next.js 16.2.3 App Router (RSC + Server Actions) |
 | 数据库与鉴权 | Supabase (Postgres + Auth + RLS) |
-| AI Agent | LangChain `createAgent`，LangSmith 监控 |
-| 知识 Agent | 扣子（Coze）平台外部 API |
-| AI 总结 | Kimi API（单轮后端调用） |
+| AI Agent | LangChain `createAgent` + LangSmith 监控 |
+| 知识检索 | 扣子（Coze）平台外部 API |
 | 流式响应 | LangChain `useStream` 处理 SSE |
-| UI | Tailwind + shadcn/ui + lucide-react |
-| 代码检查 | Biome（不是 ESLint） |
+| UI | Tailwind CSS 4 + shadcn/ui 4 (`radix-nova` 风格) + lucide-react |
+| 代码检查 | Biome 2.2（不是 ESLint） |
 | 部署 | Vercel |
 
-### 核心数据实体
+## 核心架构模式
 
-- `profiles` — 用户业务信息（关联 Supabase Auth）
+### 双端角色模型
+
+用户登录后必须选择「项目 + 角色」组合作为会话身份，全程固定。同一用户可在不同项目中担任不同角色。
+
+- `profiles` — 用户业务信息（关联 Supabase Auth UUID）
 - `projects` — 施工项目
-- `user_roles` — 用户 × 项目 × 角色三元组（质检员/施工方/管理员）
-- `tickets` — 工单（状态：待处理/已完成/已拒绝）
-- `ticket_logs` — 工单全生命周期变更记录（本阶段暂未实现）
+- `user_roles` — 用户 × 项目 × 角色三元组（质检员 / 施工方 / 管理员）
+- `tickets` — 工单（状态：`pending` / `completed` / `rejected`）
+- `ticket_logs` — 工单全生命周期变更记录（本阶段按 spec 跳过写入）
 
-工单写入**必须**经过 Next.js 后端 API，不可从浏览器直连 Supabase 写入；数据库 RLS 用于拦截直连。Route Handler 在校验登录与角色后，服务端使用 **`SUPABASE_SERVICE_ROLE_KEY`**（仅环境变量，勿暴露给前端）对 `tickets` 执行 insert/update，与上述设计一致。
+### 工单写入：service-role 模式
 
-### 工单状态机
+工单写入**必须**经过 Next.js 后端 API，不可从浏览器直连 Supabase。数据库 RLS 拦截直连。Route Handler 在校验登录与角色后，服务端使用 **`SUPABASE_SERVICE_ROLE_KEY`**（仅环境变量，勿暴露前端）对 `tickets` 执行 insert/update。
 
-`待处理 → 已完成`（解决）或 `待处理 → 已拒绝`（拒绝）。已关闭工单可重新打开。状态转换受角色权限控制（详见 `doc/工单状态机.md`）。本阶段按 spec 跳过 `ticket_logs` 写入。
+```ts
+// lib/tickets.ts — 所有写操作通过 service role
+import { createServiceClient } from "@/lib/supabase/service-role";
+```
+
+### Agent HITL 工单创建流程
+
+```
+用户描述问题 → 主Agent识别意图 → create_ticket tool_call
+→ 前端拦截 tool_call，渲染建单卡片（预填参数 + 责任人选择）
+→ 用户确认提交 → 前端调用 POST /api/tickets
+→ 成功后回灌 tool_result → Agent 告知工单编号
+```
+
+建单期间流式未完成时，提交按钮禁用。成功后用户侧持久化 `[HITL_RESULT]` 消息，气泡展示「已提交」而非原始 JSON。
+
+### Agent 工单查询：stdio MCP
+
+本地 MCP server（`mcp/ticket-query-server.mjs`）通过 stdio 与 Agent 通信。Agent 侧 `lib/agent/mcp-client.ts` 单例管理连接，注入 `supabase_access_token` 实现当前用户权限隔离（只能查到当前项目的工单）。查询结果收敛为摘要字段，支持 `limit` + `truncated` 标记。
+
+### Agent 知识检索：Coze 子 Agent
+
+`consult_construction_knowledge` 工具调用 Coze 平台 API。`lib/agent/coze-client.ts` 流式聚合最终 answer 文本，错误降级，支持 abort。前端工具卡隐藏返回原文（回答走 assistant 文本流）。
+
+### Agent 对话持久化
+
+PostgresSaver 使用 Supabase Transaction Pooler，`thread_id = user.id`。每轮请求前用 `RemoveMessage` 修剪 checkpoint 到最近 6 轮。前端 RSC 预取最近 6 轮历史，`agent-chat` 用 ref 保存最近非空 messages 避免提交后闪回 SSR 快照。
+
+## 环境变量
+
+| 变量 | 用途 |
+|------|------|
+| `SUPABASE_URL` / `SUPABASE_ANON_KEY` | Supabase 客户端 |
+| `SUPABASE_SERVICE_ROLE_KEY` | 服务端写操作，**仅后端使用** |
+| `DATABASE_URL` | Supabase Transaction Pooler（PostgresSaver） |
+| `OPENROUTER_BASE_URL` / `OPENROUTER_API_KEY` / `AGENT_MODEL_ID` | Agent 主模型 |
+| `COZE_BASE_URL` / `COZE_API_TOKEN` / `COZE_BOT_ID` | 扣子知识检索 |
+| `KIMI_API_KEY` | AI 总结（工单 → QA 对） |
+
+## 路由结构
+
+```
+/                          → 首页（双端入口按钮）
+/login                     → 统一登录（工号 + 密码，支持 ?redirect=）
+/mobile/assistant          → Agent 对话（知识检索 + 创建工单）
+/mobile/tickets            → 工单列表（Tab 状态筛选）
+/mobile/tickets/:id        → 工单详情（展示/编辑双模式 + 状态操作）
+/dashboard/overview        → 数据大盘（阶段 7 待实现）
+/dashboard/tickets         → 工单中心（表格 + 右侧详情抽屉）
+/dashboard/knowledge       → 知识运营（候选池 + QA 对管理）
+```
+
+## 关键文件索引
+
+```
+app/
+├── layout.tsx                    # 根布局（Geist + Noto Sans SC 字体，zh-CN）
+├── globals.css                   # Stitch 设计 tokens + shadcn/ui CSS 变量 + Tailwind v4
+├── api/tickets/                  # 工单 CRUD API（GET/POST route.ts + [id] PATCH + actions/*）
+├── api/agent/route.ts            # Agent SSE 流式端点
+├── api/assignees/route.ts        # 施工方责任人列表 API
+├── auth/signout/route.ts         # 退出登录
+├── mobile/layout.tsx             # 移动端布局（顶栏 h-12 + 侧边 Sheet 抽屉）
+├── mobile/assistant/page.tsx     # 智能助手页
+├── dashboard/layout.tsx          # PC 端布局（侧边栏 w-64 + 顶栏 h-16）
+lib/
+├── tickets.ts                    # 工单数据访问层（service-role 写入）
+├── auth.ts                       # 身份 cookie 读写
+├── types.ts                      # 全局类型枚举
+├── utils.ts                      # cn() 工具
+├── supabase/                     # client / server / proxy / service-role
+└── agent/
+    ├── index.ts                  # createAgent 单例 + 历史修剪
+    ├── model.ts                  # OpenRouter ChatOpenAI 配置
+    ├── prompts.ts                # 身份驱动 System Prompt（注入姓名/部门/角色/项目）
+    ├── tools.ts                  # queryTicket（MCP）/ consult_construction_knowledge（Coze）/ create_ticket（HITL）
+    ├── mcp-client.ts             # MCP MultiServer 客户端
+    ├── coze-client.ts            # Coze 流式客户端（聚合最终 answer）
+    └── create-ticket-draft-args.ts # create_ticket 工具参数解析/预填
+components/
+├── ui/                           # shadcn/ui 组件（button/input/sheet/badge/select/tabs 等 18 个）
+├── ticket-detail.tsx             # 双端共用工单详情（展示/编辑双模式）
+├── ticket-actions.tsx            # 工单状态机动作按钮（解决/拒绝/重开/指派）
+├── agent/
+│   ├── agent-chat.tsx            # 主聊天界面（消息流 + tool_call 路由 + HITL 气泡）
+│   ├── agent-markdown-anchor.tsx # 自定义 <a>：工单路径走 next/link 同页跳转
+│   ├── create-ticket-card.tsx    # HITL 建单表单卡（责任人选择 + 提交）
+│   └── tool-call-card.tsx        # 工具调用展示卡
+├── project-chip.tsx / user-avatar-chip.tsx / identity-dialog.tsx
+├── mobile-top-bar.tsx / mobile-side-drawer.tsx
+└── dashboard-top-bar.tsx / dashboard-side-nav.tsx
+```
 
 ## Next.js 16 重要变更
 
-本项目使用 Next.js 16，API 与训练数据可能存在显著差异：
-
-- **Middleware 已更名为 Proxy**：使用 `proxy.ts`（而非 `middleware.ts`），导出 `proxy` 函数或默认导出，`config.matcher` 用法不变
-- **动态路由 params 是 Promise**：在 Server Component / Route Handler 中使用 `await params` 解包，不要用条件判断绕过
-- **useSearchParams 必须包 Suspense**：否则 SSG prerender 报错
-- **不确定的 API 先查文档**：使用任何 Next.js API 前，先阅读 `node_modules/next/dist/docs/` 下的对应文档
-- 默认使用 Server Components，仅在需要交互时添加 `'use client'`
-
-## 开发流程经验
-
-- 批量创建/修改文件后，先跑 `npm run format` + `npm run lint`，再跑 `tsc --noEmit`，最后再提交
-- 局部修改文件后提交前，跑一遍 `npm run lint` 确认通过
-
-## 开发原则（源自 `.specify/memory/constitution.md`）
-
-1. **MVP 优先** — 先跑通核心路径，跳过边界情况和非阻塞问题，不考虑性能指标和优化
-2. **核心路径正确性** — 流程必须严格匹配 PRD
-3. **最小抽象** — 不做推测性抽象和防御性编程。单次使用的代码直接内联；3 处以上使用再抽取
-4. **不写测试除非被要求** — MVP 阶段类型检查 + lint 通过即可
-5. **垂直切片** — 一次实现一个用户故事的全栈贯通
-6. **中文界面，英文代码** — 面向用户的文本使用中文；变量名和注释使用英文
+- **Middleware → Proxy**：使用 `proxy.ts`，导出 `proxy` 函数，`config.matcher` 不变
+- **动态路由 params 是 Promise**：必须 `await params` 解包
+- **useSearchParams 必须包 Suspense**，否则 SSG prerender 报错
+- **默认 Server Components**，仅在需要交互时加 `'use client'`
+- 不确定的 API 先查 `node_modules/next/dist/docs/`
 
 ## 产品规格文档
 
-所有产品规格位于 `doc/` 目录：
-- `doc/项目总览.md` — 项目总览
-- `doc/数据定义.md` — 实体定义与数据库表结构
-- `doc/工单状态机.md` — 工单状态机
-- `doc/核心组件/` — 共享组件规格（工单详情、用户导航）
-- `doc/移动端/` — 移动端页面规格
-- `doc/PC端/` — PC 端页面规格
-- `doc/Agent模块/` — Agent 架构、系统提示词、MCP/HITL 工具定义
+```
+doc/
+├── 项目总览.md                   # 角色矩阵、页面路由、技术栈
+├── 数据定义.md                   # 实体定义与数据库表结构（profiles/projects/user_roles/tickets/ticket_logs）
+├── 工单状态机.md                 # 状态流转、操作权限矩阵、变更记录规则
+├── 核心组件/                     # 工单详情组件、用户导航组件
+├── 移动端/                       # 布局、工单列表/详情、Agent 对话页
+├── PC端/                         # 布局、工单中心、知识运营、数据大盘
+└── Agent模块/                    # 整体设计、system_prompt、MCP/HITL/Coze 定义
+```
 
-开发阶段进度跟踪见 `progress.md`。
+开发阶段进度跟踪见 `progress.md`（当前阶段 6 完成，阶段 7 待开始）。
 
-## Git 卡控
+## 设计系统（Stitch）
 
-使用 Husky pre-commit hook（`.husky/pre-commit`），每次 `git commit` 前自动运行：
-1. `npx tsc --noEmit` — TypeScript 类型检查
-2. `npx biome check` — Biome lint 检查
+UI 严格遵循 Stitch 设计系统（Material Design 3 音调分层法）。详见 **[DESIGN.md](./DESIGN.md)**。
 
-任一检查失败，提交会被阻止。不要使用 `--no-verify` 跳过卡控。
+核心约束：
+- **无边界规则**：禁止粗实线边框分割区域；用色调偏移或 20% 透明度分隔
+- **禁止**：渐变、重阴影（`shadow-lg`+）、发光效果
+- **色彩**：通过 `--stitch-*` CSS 变量引用，不硬编码色值
+- **图标**：仅 `lucide-react`，导航 `size-5`，品牌 `size-6`
+- **导航项**：激活态 `primary-container` 背景 + `on-primary-container` 文字
+- **工单 ID**：自增 INT（即工单编号）
+
+## 开发原则（`.specify/memory/constitution.md`）
+
+1. **MVP 优先** — 先跑通核心路径，跳过边界情况、性能优化、测试
+2. **核心路径正确性** — 严格匹配 PRD 规格，不做 PRD 未提及的功能
+3. **最小抽象** — 单次使用直接内联；3 处以上再抽取；不做防御性编程
+4. **不写测试** — MVP 阶段类型检查 + lint 通过即可
+5. **垂直切片** — 一次一个用户故事全栈贯通
+6. **中文界面，英文代码** — 面向用户文本用中文；变量名和注释用英文
 
 ## 约定
 
-- 路径别名：`@/*` 映射到项目根目录
-- shadcn/ui 样式：`radix-nova`，基础色 neutral，启用 CSS 变量
-- UI 风格遵循 Stitch 设计系统，详见 **[DESIGN.md](./DESIGN.md)**（色彩 token、布局规范、视觉规则、图标映射）
-- 工单 ID 为自增 INT（即工单编号）
-
-## Stitch MCP 项目 ID
-
-- Stitch 项目 ID：`16591807519307787618`
-
-## Active Technologies
-- TypeScript 5.x, Next.js 16.2.3 (App Router) + React 19.2, shadcn/ui 4.2, lucide-react 1.8, Tailwind CSS 4, Biome 2.2 (001-project-init)
-- N/A（本阶段不涉及数据库） (001-project-init)
-- TypeScript 5.x / PostgreSQL 15 (Supabase) + Next.js 16.2.3 (App Router), Supabase (Auth + Database + RLS) (002-auth-identity-system)
-- Supabase Postgres (002-auth-identity-system)
-- TypeScript 5.x + Next.js 16.2.3 (App Router), React 19.2, @supabase/supabase-js, @supabase/ssr, shadcn/ui 4.2, lucide-react 1.8, Tailwind CSS 4 (002-auth-identity-system)
-- Supabase Postgres (已有 profiles/projects/user_roles 表), httpOnly cookie (身份选择状态) (002-auth-identity-system)
-- Stitch 设计系统 CSS 变量 (--stitch-*)，lucide-react 图标导航 (003-stitch-layout-refactor)
-- TypeScript 5.x + Next.js 16.2.3 (App Router) + React 19.2 + @supabase/ssr + @supabase/supabase-js + shadcn/ui 4.2 + Radix UI + Tailwind CSS 4 + lucide-react (004-ticket-component-actions)
-- Supabase Postgres（已有 profiles/projects/user_roles 三张表，需新增 tickets 表） (004-ticket-component-actions)
-- langchain / @langchain/core / @langchain/langgraph / @langchain/openai / @langchain/langgraph-checkpoint-postgres / @langchain/langgraph-sdk / @langchain/react / zod (004-agent-mock-integration)
-- Supabase Transaction Pooler (DATABASE_URL) 作为 LangGraph PostgresSaver checkpoint 存储 (004-agent-mock-integration)
-- OpenRouter（OPENROUTER_BASE_URL / OPENROUTER_API_KEY / AGENT_MODEL_ID）承载 Agent 主模型 (004-agent-mock-integration)
-- TypeScript 5.x + Next.js 16.2.3 (App Router), React 19.2, @supabase/ssr, @supabase/supabase-js, shadcn/ui 4.2（Badge/Button/Sheet/Tabs/Input/Select）, lucide-react 1.8, Tailwind CSS 4 (005-mobile-ticket-detail)
-- Supabase Postgres（已存在 `tickets`/`profiles`/`projects`/`user_roles` 表；本阶段不新增表结构） (005-mobile-ticket-detail)
-- TypeScript 5.x（Next.js 16.2.3 项目）+ Node.js 运行时脚本（`.mjs`） + `langchain` / `@langchain/core` / `@langchain/mcp-adapters` / `@modelcontextprotocol/sdk` / `zod` / `@supabase/supabase-js` / `@supabase/ssr` (006-agent-ticket-query-mcp)
-- Supabase Postgres（`tickets` + 关联 `profiles`/`projects`，由 RLS 限制可见范围） (006-agent-ticket-query-mcp)
-- TypeScript 5.x + Next.js 16.2.3 (App Router), langchain 1.3.x, @langchain/react, @supabase/ssr, zod, `@coze/api` (006-coze-subagent)
-- Supabase Postgres（仅复用现有用户身份与 LangGraph checkpoint；本特性不新增数据表） (006-coze-subagent)
-
-## Recent Changes
-- Agent 对话体验：`agent-chat` 用 ref 保存最近非空 `messages` 避免提交后列表闪回 SSR 快照；底部输入区 `InputGroup`/`Textarea` 布局使多行时外框随内容增高；加载态三点指示器；`agent-markdown-anchor.tsx` 将 `/mobile|dashboard/tickets/:id` 链接改为 `next/link` 同页跳转并保留 Streamdown 默认链接样式（`text-primary underline`）；`assistant/page` 移除重复页面标题
-- Agent HITL 与工单 API：`create_ticket` 草稿卡提交 → `POST /api/tickets`；用户侧持久化 `[HITL_RESULT]` 消息，列表气泡展示「已提交」/「提交失败」而非原始 JSON；助手流式未完成前禁用提交按钮；prompt 约定成功回灌后回复须含 markdown 工单链接
-- `lib/supabase/service-role.ts` + `SUPABASE_SERVICE_ROLE_KEY`：`lib/tickets.ts` 中 insert/update 使用 service role，解决 RLS 与用户会话 JWT 不一致导致的 42501
-- `app/mobile/assistant/page.tsx`：向下传入 `projectId`，`/api/assignees` 与建单卡责任人列表稳定
-- 006-coze-subagent: Coze 知识子 Agent 接入为主 Agent 工具（`consult_construction_knowledge`），工具返回仅最终文本；卡片不展示原文
-  - 新增 `@coze/api`，环境变量：`COZE_BASE_URL` / `COZE_API_TOKEN` / `COZE_BOT_ID`
-  - `lib/agent/coze-client.ts`：流式聚合最终 answer；错误降级；支持 abort
-  - `components/agent/agent-chat.tsx`：施工知识工具卡隐藏工具返回原文（回答仍走 assistant 文本流）
-- 006-agent-ticket-query-mcp: Agent 工单查询 MCP 真实接入（替换 `queryTicket` mock）
-  - 新增本地 stdio MCP server：`mcp/ticket-query-server.mjs`，仅暴露 `query_ticket`
-  - Agent 侧新增 `lib/agent/mcp-client.ts`，单例管理 `MultiServerMCPClient` 与 `query_ticket` tool 获取
-  - `lib/agent/tools.ts`：`queryTicket` 改为结构化筛选参数并注入 `supabase_access_token` 调用 MCP
-  - `app/api/agent/route.ts`：新增 `supabase.auth.getSession()`，通过 `configurable.supabase_access_token` 透传 token
-  - 查询结果收敛为摘要字段，并支持 `limit` 上限与 `truncated` 标记；未登录返回受控错误
-- 004-agent-mock-integration: 智能助手对话 Agent Mock 实现（`/mobile/assistant`）
-  - 技术栈：`createAgent` + Next.js API 路由 (`app/api/agent/route.ts`) SSE + `FetchStreamTransport` + `useStream`
-  - 持久化：`PostgresSaver` 使用 Supabase Transaction Pooler；`thread_id = supabase.auth.getUser().id`
-  - 工具（全部 mock，仅返回 "mock success"）：`queryTicket` / `knowledge_query` / `create_ticket`
-  - HITL：前端拦截 `create_ticket` tool_call，渲染占位卡片（含无逻辑的「提交工单」按钮）
-  - System prompt：基于身份（姓名/部门/角色/项目）+ 意图路由 + 超范围拒答 + 角色建单权限
-  - 历史：RSC 预取最近 6 轮消息；每次请求前用 `RemoveMessage` 将 checkpoint 修剪到最近 6 轮
-  - 新增环境变量：`OPENROUTER_BASE_URL` / `OPENROUTER_API_KEY` / `AGENT_MODEL_ID` / `DATABASE_URL`
-- 001-project-init: Added TypeScript 5.x, Next.js 16.2.3 (App Router) + React 19.2, shadcn/ui 4.2, lucide-react 1.8, Tailwind CSS 4, Biome 2.2
+- 路径别名：`@/*` 映射项目根目录
+- shadcn/ui：`radix-nova` 风格，基础色 neutral，CSS 变量启用
+- 批量修改文件后：先 `format` → `lint` → `tsc --noEmit`，再提交
