@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { writeIdentityCookie } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import type { LoginResult, Role } from "@/lib/types";
 
 function getDefaultRedirect(role: string): string {
@@ -42,9 +41,9 @@ export async function login(formData: FormData): Promise<LoginResult> {
     return { success: false, error: "工号或密码错误" };
   }
 
-  // 3. Query user_roles via service role (auth already verified, bypass RLS)
-  const serviceClient = createServiceRoleClient();
-  const { data: userRoles, error: rolesError } = await serviceClient
+  // 3. Query user_roles — use authenticated server client (step 2 already set session cookies).
+  //    RLS policy "Users can read own user_roles" allows user_id = auth.uid().
+  const { data: userRoles, error: rolesError } = await supabase
     .from("user_roles")
     .select("project_id, role, projects(name)")
     .eq("user_id", profile.id);

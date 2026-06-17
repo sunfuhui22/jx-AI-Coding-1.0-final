@@ -100,6 +100,15 @@ PostgresSaver 使用 Supabase Transaction Pooler，`thread_id = user.id`。每�
 | `DEEPSEEK_API_KEY` / `AGENT_MODEL_ID` | Agent 主模型与 AI 总结（DeepSeek） |
 | `COZE_BASE_URL` / `COZE_API_TOKEN` / `COZE_BOT_ID` | 扣子知识检索 |
 
+## 测试账号
+
+| 工号 | 密码 | 姓名 | 部门 | 邮箱 | 项目 | 角色 | 端 |
+|------|------|------|------|------|------|------|-----|
+| A001 | Admin123! | 系统管理员 | 技术部 | admin@zhijian.com | 世博中心项目 | 管理员 | PC 端 |
+| B001 | Test123! | 张质检 | 质检部 | inspector@zhijian.com | 世博中心项目 | 质检员 | 移动端 |
+
+> 登录地址：`/login`，管理员自动跳转 `/dashboard/overview`，质检员自动跳转 `/mobile/assistant`。
+
 ## 路由结构
 
 ```

@@ -103,14 +103,21 @@
 - **Agent 模型**: DeepSeek (`deepseek-chat`)
 - **设计系统**: Engineering Blue（筑审 AI Open Design 风格）
 - **数据库**: 五表就绪，12 条测试工单
-- **测试账号**: 管理员 A001 + 质检员 B001
+- **测试账号**: 管理员 A001 + 质检员 B001（详见 CLAUDE.md）
 - **环境变量**: Supabase + DeepSeek 已配置
 - **待补变量**: `COZE_API_TOKEN`、`COZE_BOT_ID`、`DATABASE_URL`
 - **下一步**: 端到端流程走查 + RLS 收紧 + Vercel 部署
 
 ### 2026-06-17 更新记录
 
-#### 设计系统迁移
+#### 登录链路二次修复
+- `user_roles` RLS 策略"Admins can read all user_roles in their projects"因自引用导致无限递归，替换为 `public.is_admin_in_project(pid)` SECURITY DEFINER 函数
+- 登录 Action Step 3 从 service role client 切换为已认证 server client（Step 2 已设 session cookie，RLS `user_id = auth.uid()` 自然放行）
+- 移除 `app/login/actions.ts` 中对 `createServiceRoleClient` 的依赖
+
+#### CLAUDE.md 补充
+- 新增「测试账号」章节，含工号/密码/姓名/部门/邮箱/项目/角色/端的完整表格
+- 管理员 A001 自动跳转 `/dashboard/overview`，质检员 B001 自动跳转 `/mobile/assistant`
 - 全站从 Stitch (Material Design 3) 迁移至 Engineering Blue (Open Design)
 - 移除组件中所有 `stitch-*` CSS 变量引用，改用标准 Tailwind + 语义化类名
 - 新增 `.od-panel`、`.od-panel-header`、`.od-nav-item`、`.od-section-label`、`.od-filter-tab` 等可复用工具类
@@ -126,8 +133,9 @@
 | 5 | 两段迁移 RLS 策略重复 | 待清理 |
 | 6 | `getAllTickets` 中 Supabase `or()` 通配符 | ✅ 已修 |
 | 7 | profiles RLS 阻止登录流程（anon 无法读） | ✅ 已修 |
-| 8 | user_roles RLS 递归子查询导致策略失效 | ✅ 已修 |
-| 9 | 登录 Action 跨客户端 session 丢失 | ✅ 已修（service role） |
+| 8 | user_roles RLS 递归子查询导致策略失效（二次修复，`is_admin_in_project` 函数） | ✅ 已修 |
+| 9 | 登录 Action user_roles 查询失败 | ✅ 已修（切换为已认证 server client） |
+| 10 | 测试账号表缺失 | ✅ 已补（见 CLAUDE.md） |
 
 #### 种子数据
 - 12 条工单分布于：待处理(5)、已完成(4)、已拒绝(3)
