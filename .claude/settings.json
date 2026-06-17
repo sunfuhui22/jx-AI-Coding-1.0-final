@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "open-design": {
+      "command": "od",
+      "args": ["mcp", "--daemon-url", "od://app"],
+      "env": { "OD_DATA_DIR": "~/.open-design" }
+    }
+  }
+}

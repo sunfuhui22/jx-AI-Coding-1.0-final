@@ -393,7 +393,7 @@ export function AgentChat({
         <ConversationScrollButton />
       </Conversation>
 
-      <div className="relative z-10 shrink-0 border-t border-border bg-[var(--stitch-surface-container-lowest)] px-3 pb-3 pt-4">
+      <div className="relative z-10 shrink-0 border-t border-border bg-card px-3 pb-3 pt-4">
         <PromptInput onSubmit={handleSubmit}>
           <PromptInputBody>
             <PromptInputTextarea

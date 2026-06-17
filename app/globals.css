@@ -51,51 +51,89 @@
 }
 
 :root {
-  --background: #f7f9fb;
-  --foreground: #2a3439;
+  /* Engineering Blue Design System (from Open Design) */
+  --background: #f6f8fb;
+  --foreground: #111827;
   --card: #ffffff;
-  --card-foreground: #2a3439;
+  --card-foreground: #111827;
   --popover: #ffffff;
-  --popover-foreground: #2a3439;
-  --primary: #005ac2;
-  --primary-foreground: #f7f7ff;
-  --secondary: #d8e2ff;
-  --secondary-foreground: #005ac2;
-  --muted: #e8eff3;
-  --muted-foreground: #566166;
-  --accent: #d8e2ff;
-  --accent-foreground: #005ac2;
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: #a9b4b9;
-  --input: #e8eff3;
-  --ring: #005ac2;
-  --chart-1: #005ac2;
-  --chart-2: #566166;
-  --chart-3: #2a3439;
-  --chart-4: #a9b4b9;
-  --chart-5: #e8eff3;
+  --popover-foreground: #111827;
+  --primary: #1e5fdb;
+  --primary-foreground: #ffffff;
+  --secondary: #dbeafe;
+  --secondary-foreground: #1e5fdb;
+  --muted: #f3f4f6;
+  --muted-foreground: #6b7280;
+  --accent: rgba(30, 95, 219, 0.07);
+  --accent-foreground: #1e5fdb;
+  --destructive: #dc2626;
+  --border: #e5e7eb;
+  --input: #f6f8fb;
+  --ring: rgba(30, 95, 219, 0.25);
+  --chart-1: #1e5fdb;
+  --chart-2: #6b7280;
+  --chart-3: #111827;
+  --chart-4: #e5e7eb;
+  --chart-5: #f3f4f6;
   --radius: 0.625rem;
   --sidebar: #ffffff;
-  --sidebar-foreground: #2a3439;
-  --sidebar-primary: #005ac2;
-  --sidebar-primary-foreground: #f7f7ff;
-  --sidebar-accent: #d8e2ff;
-  --sidebar-accent-foreground: #005ac2;
-  --sidebar-border: #a9b4b9;
-  --sidebar-ring: #005ac2;
+  --sidebar-foreground: #111827;
+  --sidebar-primary: #1e5fdb;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgba(30, 95, 219, 0.07);
+  --sidebar-accent-foreground: #1e5fdb;
+  --sidebar-border: #e5e7eb;
+  --sidebar-ring: rgba(30, 95, 219, 0.25);
 
-  /* Stitch Design System Tokens */
-  --stitch-primary: #005ac2;
-  --stitch-primary-container: #d8e2ff;
-  --stitch-on-primary-container: #004eaa;
-  --stitch-on-surface-variant: #566166;
-  --stitch-background: #f7f9fb;
-  --stitch-surface: #f7f9fb;
-  --stitch-surface-container-low: #f0f4f7;
-  --stitch-surface-container: #e8eff3;
+  /* Semantic Colors */
+  --success: #17a34a;
+  --warn: #eab308;
+  --danger: #dc2626;
+
+  /* Stitch Design System Tokens (adapted to Engineering Blue) */
+  --stitch-primary: #1e5fdb;
+  --stitch-primary-container: rgba(30, 95, 219, 0.07);
+  --stitch-on-primary-container: #1e5fdb;
+  --stitch-on-surface-variant: #6b7280;
+  --stitch-background: #f6f8fb;
+  --stitch-surface: #ffffff;
+  --stitch-surface-container-low: #f9fafb;
+  --stitch-surface-container: #f3f4f6;
   --stitch-surface-container-lowest: #ffffff;
-  --stitch-surface-container-high: #e1e9ee;
-  --stitch-outline-variant: #a9b4b9;
+  --stitch-surface-container-high: #e5e7eb;
+  --stitch-outline-variant: #e5e7eb;
+
+  /* Engineering Blue Design Tokens */
+  --accent-hover: #1648b0;
+  --accent-active: #10378a;
+  --accent-subtle: rgba(30, 95, 219, 0.07);
+  --border-soft: #f3f4f6;
+
+  /* Typography */
+  --text-xs: 11px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 32px;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* Motion */
+  --motion-fast: 120ms;
+  --motion-base: 200ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Focus Ring */
+  --focus-ring: 0 0 0 3px rgba(30, 95, 219, 0.25);
 }
 
 .dark {
@@ -138,8 +176,131 @@
   }
   body {
     @apply bg-background text-foreground;
+    position: relative;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+
+  /* Engineering Blue dot-grid background */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(
+      circle,
+      rgba(30, 95, 219, 0.04) 1px,
+      transparent 1px
+    );
+    background-size: 20px 20px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
   html {
     @apply font-sans;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* Ensure content appears above the dot-grid */
+  #__next,
+  body > div {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
+  }
+
+  button {
+    cursor: pointer;
+  }
+  a {
+    color: var(--primary);
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ * Open Design Component Patterns
+ * ═══════════════════════════════════════════════════════════════════ */
+@layer components {
+  /* Panel card — Open Design surface card */
+  .od-panel {
+    @apply bg-card border border-border rounded-xl overflow-hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+
+  /* Panel header with subtle bg */
+  .od-panel-header {
+    @apply flex items-center gap-3 px-4 py-3 border-b border-[var(--border-soft)] bg-muted/30;
+  }
+
+  /* Stat pill */
+  .od-stat-pill {
+    @apply flex items-center gap-1.5 text-xs text-muted-foreground;
+  }
+  .od-stat-pill strong {
+    @apply text-foreground text-sm font-semibold;
+  }
+
+  /* Status pill base */
+  .od-status-pill {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold;
+  }
+  .od-status-dot {
+    @apply w-1.5 h-1.5 rounded-full;
+  }
+
+  /* Sidebar nav item — Open Design style */
+  .od-nav-item {
+    @apply flex items-center gap-2 px-2.5 py-[7px] rounded-md text-sm
+           text-muted-foreground transition-all duration-[var(--motion-fast)]
+           hover:bg-muted hover:text-foreground;
+  }
+  .od-nav-item.active {
+    @apply bg-[var(--accent-subtle)] text-primary font-semibold;
+  }
+
+  /* Section label in sidebar */
+  .od-section-label {
+    @apply text-[11px] font-semibold uppercase tracking-wider text-muted-foreground
+           mb-2 px-1;
+  }
+
+  /* Filter tab — segmented button */
+  .od-filter-tab {
+    @apply px-3 py-1 text-xs font-medium border border-border
+           text-muted-foreground transition-all duration-[var(--motion-fast)]
+           hover:bg-muted hover:text-foreground;
+  }
+  .od-filter-tab:first-child {
+    @apply rounded-l-md;
+  }
+  .od-filter-tab:last-child {
+    @apply rounded-r-md;
+  }
+  .od-filter-tab + .od-filter-tab {
+    @apply border-l-0;
+  }
+  .od-filter-tab.active {
+    @apply bg-primary text-primary-foreground border-primary;
   }
 }

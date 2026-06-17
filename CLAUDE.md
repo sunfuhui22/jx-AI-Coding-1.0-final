@@ -97,9 +97,8 @@ PostgresSaver 使用 Supabase Transaction Pooler，`thread_id = user.id`。每�
 | `SUPABASE_URL` / `SUPABASE_ANON_KEY` | Supabase 客户端 |
 | `SUPABASE_SERVICE_ROLE_KEY` | 服务端写操作，**仅后端使用** |
 | `DATABASE_URL` | Supabase Transaction Pooler（PostgresSaver） |
-| `OPENROUTER_BASE_URL` / `OPENROUTER_API_KEY` / `AGENT_MODEL_ID` | Agent 主模型 |
+| `DEEPSEEK_API_KEY` / `AGENT_MODEL_ID` | Agent 主模型与 AI 总结（DeepSeek） |
 | `COZE_BASE_URL` / `COZE_API_TOKEN` / `COZE_BOT_ID` | 扣子知识检索 |
-| `KIMI_API_KEY` | AI 总结（工单 → QA 对） |
 
 ## 路由结构
 

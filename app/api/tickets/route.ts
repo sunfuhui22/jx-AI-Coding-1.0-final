@@ -1,14 +1,43 @@
 import { NextResponse } from "next/server";
 import { getIdentityFromCookie } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { createTicket, getTicketsByProject } from "@/lib/tickets";
+import {
+  createTicket,
+  getAllTickets,
+  getTicketsByProject,
+} from "@/lib/tickets";
 import type { Severity, SpecialtyType } from "@/lib/types";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const projectIdParam = url.searchParams.get("projectId");
   const identity = await getIdentityFromCookie();
 
+  // Admin: cross-project query with optional filters
+  if (identity?.role === "管理员") {
+    const projectIdParam = url.searchParams.get("projectId");
+    const statusesParam = url.searchParams.get("statuses");
+    const severitiesParam = url.searchParams.get("severities");
+    const specialtyType = url.searchParams.get("specialty_type") ?? undefined;
+    const keyword = url.searchParams.get("keyword") ?? undefined;
+
+    const filters = {
+      projectId: projectIdParam ? Number(projectIdParam) : undefined,
+      statuses: statusesParam
+        ? statusesParam.split(",").filter(Boolean)
+        : undefined,
+      severities: severitiesParam
+        ? severitiesParam.split(",").filter(Boolean)
+        : undefined,
+      specialtyType,
+      keyword,
+    };
+
+    const tickets = await getAllTickets(filters);
+    return NextResponse.json({ tickets });
+  }
+
+  // Non-admin: per-project query (existing behavior)
+  const projectIdParam = url.searchParams.get("projectId");
   const projectId = projectIdParam
     ? Number(projectIdParam)
     : (identity?.projectId ?? null);
@@ -21,7 +50,6 @@ export async function GET(request: Request) {
   }
 
   const tickets = await getTicketsByProject(projectId);
-
   return NextResponse.json({ tickets });
 }
 

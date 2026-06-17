@@ -1,7 +1,7 @@
-export default function KnowledgePage() {
-  return (
-    <div>
-      <h2 className="text-lg font-medium">知识运营</h2>
-    </div>
-  );
+import { KnowledgeContent } from "@/components/dashboard/knowledge-content";
+import { getKnowledgeCandidates } from "@/lib/tickets";
+
+export default async function KnowledgePage() {
+  const candidates = await getKnowledgeCandidates();
+  return <KnowledgeContent initialCandidates={candidates} />;
 }

@@ -1,8 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getIdentitiesForUser, writeIdentityCookie } from "@/lib/auth";
+import { writeIdentityCookie } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import type { LoginResult, Role } from "@/lib/types";
 
 function getDefaultRedirect(role: string): string {
@@ -41,12 +42,24 @@ export async function login(formData: FormData): Promise<LoginResult> {
     return { success: false, error: "工号或密码错误" };
   }
 
-  // 3. Query identities for this user
-  const identities = await getIdentitiesForUser(profile.id);
+  // 3. Query user_roles via service role (auth already verified, bypass RLS)
+  const serviceClient = createServiceRoleClient();
+  const { data: userRoles, error: rolesError } = await serviceClient
+    .from("user_roles")
+    .select("project_id, role, projects(name)")
+    .eq("user_id", profile.id);
 
-  if (identities.length === 0) {
+  if (rolesError || !userRoles || userRoles.length === 0) {
     return { success: false, error: "该账号没有关联的项目角色" };
   }
+
+  const identities = userRoles.map((row) => ({
+    projectId: row.project_id,
+    projectName: Array.isArray(row.projects)
+      ? (row.projects[0]?.name ?? "")
+      : ((row.projects as { name?: string } | null)?.name ?? ""),
+    role: row.role as Role,
+  }));
 
   if (identities.length === 1) {
     // Single identity: auto-select

@@ -45,7 +45,7 @@ export function MobileLayoutClient({
       "智能助手");
 
   return (
-    <div className="flex min-h-full flex-1 flex-col">
+    <div className="flex h-screen flex-col overflow-hidden">
       <MobileTopBar
         title={title}
         onMenuClick={() => setDrawerOpen(true)}
@@ -62,7 +62,7 @@ export function MobileLayoutClient({
         role={role}
         identities={identities}
       />
-      <main className="flex-1 bg-[var(--stitch-surface-container-lowest)] p-4">
+      <main className="flex-1 overflow-y-auto bg-background p-4">
         {children}
       </main>
     </div>

@@ -1,7 +1,7 @@
-export default function OverviewPage() {
-  return (
-    <div>
-      <h2 className="text-lg font-medium">数据大盘</h2>
-    </div>
-  );
+import { OverviewContent } from "@/components/dashboard/overview-content";
+import { getTicketStats } from "@/lib/tickets";
+
+export default async function OverviewPage() {
+  const stats = await getTicketStats();
+  return <OverviewContent stats={stats} />;
 }

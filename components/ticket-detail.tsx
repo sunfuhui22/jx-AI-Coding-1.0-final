@@ -24,6 +24,7 @@ interface TicketDetailProps {
     userId: string;
     role: Role;
   } | null;
+  hideActions?: boolean;
 }
 
 const statusVariantMap: Record<
@@ -67,7 +68,11 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function TicketDetail({ ticket, userIdentity }: TicketDetailProps) {
+export function TicketDetail({
+  ticket,
+  userIdentity,
+  hideActions,
+}: TicketDetailProps) {
   const [mode, setMode] = useState<"view" | "edit">("view");
   const [saving, setSaving] = useState(false);
   const router = useRouter();
@@ -147,7 +152,7 @@ export function TicketDetail({ ticket, userIdentity }: TicketDetailProps) {
             compact
           />
         </FieldRow>
-        {canEdit && mode === "view" && (
+        {canEdit && mode === "view" && !hideActions && (
           <div className="pt-2">
             <button
               type="button"
@@ -297,7 +302,7 @@ export function TicketDetail({ ticket, userIdentity }: TicketDetailProps) {
       </section>
 
       {/* 操作按钮 — view mode only */}
-      {mode === "view" && userIdentity && (
+      {mode === "view" && userIdentity && !hideActions && (
         <TicketActions ticket={ticket} userIdentity={userIdentity} />
       )}
     </div>
